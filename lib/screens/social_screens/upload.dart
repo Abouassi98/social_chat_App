@@ -24,6 +24,7 @@ class Upload extends StatefulWidget {
 
 class _UploadState extends State<Upload>
     with AutomaticKeepAliveClientMixin<Upload> {
+  bool isLood = false;
   final captionController = TextEditingController();
   final locationController = TextEditingController();
   File _pickedImage;
@@ -274,23 +275,25 @@ class _UploadState extends State<Upload>
             width: 200,
             height: 100,
             alignment: Alignment.center,
-            child: RaisedButton.icon(
-              onPressed: getUserLocation,
-              icon: Icon(
-                Icons.my_location,
-                color: Colors.white,
-              ),
-              label: Text(
-                'Use current location',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              color: Colors.blue,
-            ),
+            child: isLood
+                ? Center(child: CircularProgressIndicator())
+                : RaisedButton.icon(
+                    onPressed: getUserLocation,
+                    icon: Icon(
+                      Icons.my_location,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      'Use current location',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.blue,
+                  ),
           )
         ],
       ),
@@ -298,16 +301,26 @@ class _UploadState extends State<Upload>
   }
 
   getUserLocation() async {
-    final position =
-        await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    final placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
-    final placemark = placemarks[0];
+    try {
+      setState(() {
+        isLood = true;
+      });
+      final position =
+          await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      final placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      final placemark = placemarks[0];
 
-    String formattedAdress =
-        '${placemark.thoroughfare},${placemark.subThoroughfare},${placemark.locality},${placemark.subLocality},${placemark.country}';
-    locationController.text = formattedAdress;
-    print(formattedAdress);
+      String formattedAdress =
+          '${placemark.thoroughfare},${placemark.subThoroughfare},${placemark.locality},${placemark.subLocality},${placemark.country}';
+      locationController.text = formattedAdress;
+      setState(() {
+        isLood = false;
+      });
+      print(formattedAdress);
+    } catch (error) {
+      print(error);
+    }
   }
 
   bool get wantKeepAlive => true;

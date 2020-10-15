@@ -114,7 +114,7 @@ class _PostState extends State<Post> {
           title: GestureDetector(
             onTap: () => showProfile(context, profileId: user.id),
             child: Text(
-              user?.username,
+              user?.displayName,
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,

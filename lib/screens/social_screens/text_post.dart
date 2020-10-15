@@ -16,6 +16,7 @@ class TextPost extends StatefulWidget {
 }
 
 class _TextPostState extends State<TextPost> {
+    bool isLood = false;
   final captionController = TextEditingController();
   final locationController = TextEditingController();
   bool isUploading = false;
@@ -162,6 +163,10 @@ class _TextPostState extends State<TextPost> {
   }
 
   getUserLocation() async {
+    try {
+      setState(() {
+        isLood = true;
+      });
     final position =
         await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     final placemarks =
@@ -171,9 +176,14 @@ class _TextPostState extends State<TextPost> {
     String formattedAdress =
         '${placemark.thoroughfare},${placemark.subThoroughfare},${placemark.locality},${placemark.subLocality},${placemark.country}';
     locationController.text = formattedAdress;
+          setState(() {
+        isLood = false;
+      });
     print(formattedAdress);
+  }catch (error) {
+      print(error);
+    }
   }
-
   @override
   Widget build(BuildContext context) {
     return buildUploadForm();
