@@ -22,20 +22,40 @@ class _TimelineState extends State<Timeline> {
   void initState() {
     super.initState();
     getTimeline();
+
     getFollowing();
   }
 
   getTimeline() async {
-    QuerySnapshot snapshot = await timelineRef
+    QuerySnapshot userSnapshot = await followingRef
         .doc(widget.currentUser.id)
-        .collection('timelinePosts')
-        .orderBy('timestamp', descending: true)
+        .collection('userFollowing')
         .get();
-    List<Post> posts =
-        snapshot.docs.map((doc) => Post.fromDocument(doc)).toList();
-    setState(() {
-      this.posts = posts;
-    });
+
+    if (userSnapshot.docs.isNotEmpty || userSnapshot.docs != null) {
+      List<String> myFollowingUserId = [];
+      List<Post> editedPosts = [];
+      userSnapshot.docs.forEach((doc) {
+        myFollowingUserId.add(doc.id);
+      });
+      for (int i = 0; i < myFollowingUserId.length; i++) {
+        QuerySnapshot snapshot = await postRef
+            .doc(myFollowingUserId[i])
+            .collection('userPosts')
+            .orderBy('timestamp', descending: true)
+            .get();
+
+        List<Post> posts =
+            snapshot.docs.map((doc) => Post.fromDocument(doc)).toList();
+
+        for (int i = 0; i < posts.length; i++) {
+          editedPosts.add(posts[i]);
+        }
+      }
+      setState(() {
+        this.posts = editedPosts;
+      });
+    }
   }
 
   getFollowing() async {
